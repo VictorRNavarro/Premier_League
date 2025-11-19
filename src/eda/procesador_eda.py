@@ -53,7 +53,18 @@ class ProcesadorEDA:
                     lambda x: 1 if pos in x else 0
                 )
 
+            print(f" Posiciones transformadas a columnas dummies: {posiciones_unicas}")
+
+            # Crear columna dummy por posición
+            for pos in posiciones_unicas:
+                self.df[f"POS_{pos}"] = self.df["PositionList"].apply(
+                    lambda x: 1 if pos in x else 0
+                )
+
             print(f"✔ Posiciones transformadas a columnas dummies: {posiciones_unicas}")
+
+            # Eliminar columnas originales
+            self.df.drop(columns=["Position", "PositionList"], inplace=True, errors="ignore")
 
         # ------------------------------------
         # NORMALIZACIÓN DE PORCENTAJES
@@ -66,7 +77,7 @@ class ProcesadorEDA:
             self.df["Pass Completion %"] = pd.to_numeric(
                 self.df["Pass Completion %"], errors="coerce"
             )
-            print("✔ Normalizado Pass Completion %")
+            print(" Normalizado Pass Completion %")
 
         # ------------------------------------
         # CONVERSIÓN A NUMÉRICO DE OTRAS COLUMNAS
@@ -81,10 +92,10 @@ class ProcesadorEDA:
                 self.df[col] = pd.to_numeric(self.df[col], errors="coerce")
 
         # ------------------------------------
-        # FECHAS
+        # Fechas
         if "Date" in self.df.columns:
             self.df["Date"] = pd.to_datetime(self.df["Date"], errors="coerce")
-            print("✔ Convertida columna Date a datetime")
+            print(" Convertida columna Date a datetime")
 
         # ------------------------------------
         # IMPUTACIÓN DE NULOS
@@ -92,7 +103,7 @@ class ProcesadorEDA:
 
         # ------------------------------------
         # GUARDAR CSV procesado
-        output_folder = "src/data/processed"
+        output_folder = "../data/processed"  # subir un nivel desde notebooks/
         os.makedirs(output_folder, exist_ok=True)
 
         ruta_salida = f"{output_folder}/premier_clean.csv"
@@ -102,9 +113,9 @@ class ProcesadorEDA:
 
         return self.df
 
-    # ============================================
-    # MÉTODO: Resumen descriptivo
-    # ============================================
+    # ----------------------------------------------
+    # Resumen descriptivo
+
     def resumen_descriptivo(self):
         """
         Retorna el resumen estadístico del dataset limpio.
@@ -112,13 +123,13 @@ class ProcesadorEDA:
         print("=== RESUMEN DESCRIPTIVO ===")
         display(self.df.describe(include="all"))
 
-    # ============================================
-    # MÉTODO: Matriz de correlación
-    # ============================================
+    # ----------------------------------------
+    # Metodo: matriz de correlación
+
     def matriz_correlacion(self):
-        """
-        Retorna la matriz de correlación de las columnas numéricas.
-        """
+
+        # Retorna la matriz de correlación de las columnas numéricas.
+
         print("=== MATRIZ DE CORRELACIÓN ===")
         corr = self.df.corr(numeric_only=True)
         return corr
